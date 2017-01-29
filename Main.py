@@ -39,24 +39,19 @@ while StillGoing == True:
 
             Movement = waitForKeyPress()
             #Movement = input('Enter your move: ')
-            print()
-            # Little divider to differentiate turns more visually
-            print('----------------')
-            print()
-            
+
             Grid,Score,ValidMove = MoveGrid(Grid,Movement,Score,ValidMove)
-            GridChanged,LastGrid,GridStill = GridDifferent(Grid,LastGrid,GridChanged,GridStill)
+            GridChanged,GridStill = GridDifferent(Grid,LastGrid,GridChanged,GridStill)
             
             ValidMove = GridChanged
             
         else:
 
             Movement,AutoCount = AutoPlay(Grid,GridStill,AutoCount,AutoTime)
-            print()
 
             Grid,Score,ValidMove = MoveGrid(Grid,Movement,Score,ValidMove)
             
-            GridChanged,LastGrid,GridStill = GridDifferent(Grid,LastGrid,GridChanged,GridStill)
+            GridChanged,GridStill = GridDifferent(Grid,LastGrid,GridChanged,GridStill)
             
             ValidMove = GridChanged
 
@@ -66,10 +61,11 @@ while StillGoing == True:
     
     if StillGoing == True:
         SpawnNumber(Grid)
+        LastGrid,SpaceChanged = SpaceDifferent(Grid,LastGrid,SpaceChanged)
         PlayerLost = NoMoves(Grid,PlayerLost)
         StillGoing = not PlayerLost
-        DrawGrid(Grid,Score)
-        #PrintGrid(Grid)
+        DrawGrid(Grid,Score,SpaceChanged)
+        #PrintGrid(SpaceChanged)
         if StillGoing == False:
             print()
             print('Sorry, you lose!')
