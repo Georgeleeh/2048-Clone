@@ -6,6 +6,7 @@ import time
 # Initialise the variables
 LastGrid = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
 Grid = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+SpaceChanged = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
 #Grid = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]
 
 AutoMode = False
@@ -116,7 +117,7 @@ def CondenseGrid(Grid,Score):
     Grid = CollapseLine(Grid)
     return(Grid,Score)
 
-def DrawGrid(Grid,Score):
+def DrawGrid(Grid,Score,SpaceChanged):
     """ Draws a graphical representation of the grid in a 2048 style.
     
     @param Grid The 4*4 2D array
@@ -143,25 +144,27 @@ def DrawGrid(Grid,Score):
     # Loop whole grid
     for j in range(4):
         for i in range(4):
-            moveTo((i+1) * Pad + i * SpaceWidth , CanvasHeight/4 + (j+1) * Pad + j * SpaceHeight)
-            # Set the appropriate colour for the space
-            if Grid[i][j] == 0:
-                setFillColour(EmptySpaceColour)
-                setLineColour(EmptySpaceColour)
-            else:
-                setFillColour(SpaceColour[ int(log2(Grid[i][j])) ])
-                setLineColour(SpaceColour[ int(log2(Grid[i][j])) ])
-            drawRectangle(SpaceWidth,SpaceHeight)
-            # Move to the center of the space and enter the text
-            moveTo((i+1)*Pad + i*SpaceWidth + SpaceWidth/2, CanvasHeight/4 + (j+1)*Pad + j*SpaceHeight + SpaceHeight/2)
-            #setTextProperties()
-            if Grid[i][j] < 8:
-                setLineColour(DarkTextColour)
-            else:
-                setLineColour(LightTextColour)
+            
+            if SpaceChanged[i][j] == 1:
+                moveTo((i+1) * Pad + i * SpaceWidth , CanvasHeight/4 + (j+1) * Pad + j * SpaceHeight)
+                # Set the appropriate colour for the space
+                if Grid[i][j] == 0:
+                    setFillColour(EmptySpaceColour)
+                    setLineColour(EmptySpaceColour)
+                else:
+                    setFillColour(SpaceColour[ int(log2(Grid[i][j])) ])
+                    setLineColour(SpaceColour[ int(log2(Grid[i][j])) ])
+                drawRectangle(SpaceWidth,SpaceHeight)
+                # Move to the center of the space and enter the text
+                moveTo((i+1)*Pad + i*SpaceWidth + SpaceWidth/2, CanvasHeight/4 + (j+1)*Pad + j*SpaceHeight + SpaceHeight/2)
+                #setTextProperties()
+                if Grid[i][j] < 8:
+                    setLineColour(DarkTextColour)
+                else:
+                    setLineColour(LightTextColour)
 
-            if Grid[i][j] != 0:
-                drawText(str(Grid[i][j]))
+                if Grid[i][j] != 0:
+                    drawText(str(Grid[i][j]))
 
     updateCanvas()
 
@@ -190,15 +193,32 @@ def GridDifferent(Grid,LastGrid,GridChanged,GridStill):
     @param GridChanged Boolean to check if the grid has changed after a move
     @param GridStill Holds how many turns the grid has remained unchanged
     """
+    SpaceChanged = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
     GridChanged = False
     GridStill += 1
     for y in range(4):
         for x in range(4):
             if Grid[y][x] != LastGrid[y][x]:
+                SpaceChanged[y][x] = 1
                 GridChanged = True
                 GridStill -= 1
+    return(GridChanged,GridStill)
+
+def SpaceDifferent(Grid,LastGrid,SpaceChanged):
+    """ Checks to see if the grid has changed after a move.
+    
+    @param Grid The 4*4 2D array
+    @param LastGrid The Grid after the previous turn
+    @param SpaceChanged A space equals 1 if it's changed since the last turn
+    """
+    SpaceChanged = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+
+    for y in range(4):
+        for x in range(4):
+            if Grid[y][x] != LastGrid[y][x]:
+                SpaceChanged[y][x] = 1
     LastGrid = Grid
-    return(GridChanged,LastGrid,GridStill)
+    return(LastGrid,SpaceChanged)
 
 def InitGraphics(Grid,Score):
     """ Draws a graphical representation of the grid in a 2048 style.
